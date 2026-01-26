@@ -11,16 +11,58 @@ function MyApp() {
     const promise = fetch("http://localhost:8000/users");
     return promise;
   }
+
+  function postUser(person) {
+    const promise = fetch("Http://localhost:8000/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(person),
+    });
+
+  return promise;
+  }
   
   function updateList(person) {
-  setCharacters([...characters, person]);
+    fetch("http://localhost:8000/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(person),
+    })
+     .then((res) => {
+       if (res.status === 201){
+          return res.json();
+       } else {
+        throw new Error("User not created");
+       }
+     })
+     .then((newUser) => {
+        setCharacters([...characters, newUser]);
+     })
+     .catch((error) => {
+       console.log(error);
+    });
   }
   
   function removeOneCharacter(index) {
-    const updated = characters.filter((character, i) => {
-      return i !== index;
-    });
-    setCharacters(updated);
+    fetch('http://localhost:8000/users/${id}',{
+      method: "DELETE",
+    })
+      .then((response) => {
+        if (response.status === 204){
+          setCharacters(characters.filter((user) => user.id !== id));
+        }else if (response.status === 404){
+          console.error("user not found on backend");
+        }else{
+          throw new Error("Delete failed");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   useEffect(() => {
